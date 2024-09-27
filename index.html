@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhanced To-Do App</title>
+  <style>
+    body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f4f4;
+}
+
+.container {
+  display: flex;
+  width: 80%;
+  max-width: 1200px;
+  height: 500px;
+  border: 1px solid #ccc;
+}
+
+.left-pane, .right-pane {
+  flex: 1;
+  padding: 20px;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+.left-pane {
+  border-right: 1px solid #ddd;
+}
+
+h2 {
+  margin-top: 0;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  margin: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-icons {
+  display: flex;
+  gap: 10px;
+}
+
+button {
+  padding: 8px 12px;
+  background-color: #28a745;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+button.delete {
+  background-color: #dc3545;
+}
+
+button.edit {
+  background-color: #007bff;
+}
+
+.completed {
+  text-decoration: line-through;
+}
+
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="left-pane">
+      <h2>Tasks</h2>
+      <ul id="taskList"></ul>
+    </div>
+    <div class="right-pane">
+      <h2>Add a New Task</h2>
+      <textarea id="taskInput" placeholder="Enter your task"></textarea>
+    </div>
+  </div>
+  <script>
+    // Select the necessary elements
+const taskInput = document.getElementById('taskInput');
+const taskList = document.getElementById('taskList');
+
+// Fetch tasks from local storage and display them
+window.onload = function () {
+  displayTasks();
+};
+
+// Function to display tasks
+function displayTasks() {
+  const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  taskList.innerHTML = ''; // Clear the list
+  tasks.forEach((task, index) => addTaskToList(task, index));
+}
+
+// Function to add a new task to the list
+function addTaskToList(task, index) {
+  const li = document.createElement('li');
+  li.innerHTML = `
+    <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleComplete(${index})">
+    <span class="${task.completed ? 'completed' : ''}">${task.text}</span>
+    <div class="task-icons">
+      <button class="edit" onclick="editTask(${index})">&#9998;</button>
+      <button class="delete" onclick="deleteTask(${index})">&#10006;</button>
+    </div>
+  `;
+  taskList.appendChild(li);
+}
+
+// Function to add a task to local storage and the list
+function addTask(taskText) {
+  const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  tasks.push({ text: taskText, completed: false });
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+  displayTasks();
+}
+
+// Handle ENTER keypress in the textarea
+taskInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter' && taskInput.value.trim()) {
+    e.preventDefault(); // Prevent default action of ENTER key
+    addTask(taskInput.value.trim());
+    taskInput.value = ''; // Clear the textarea
+  }
+});
+
+// Function to toggle the completion status of a task
+function toggleComplete(index) {
+  const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  tasks[index].completed = !tasks[index].completed;
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+  displayTasks();
+}
+
+// Function to delete a task
+function deleteTask(index) {
+  const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  tasks.splice(index, 1);
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+  displayTasks();
+}
+
+// Function to edit a task name
+function editTask(index) {
+  const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  const newTaskText = prompt('Update Task', tasks[index].text);
+  if (newTaskText) {
+    tasks[index].text = newTaskText;
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+    displayTasks();
+  }
+}
+
+  </script>
+</body>
+</html>
+
